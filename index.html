@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101820">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Моё расписание">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Моё расписание</title>
+<style>
+:root{color-scheme:dark;--bg:#0d141b;--card:#17232d;--muted:#91a1ae;--text:#f4f7fa;--accent:#74d6a0;--line:#293945;--blue:#9bc8ff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#101c26,#0b1117 55%);color:var(--text);font:16px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom))}
+main{max-width:650px;margin:0 auto}.top{display:flex;justify-content:space-between;align-items:center;padding:22px 2px 14px}.eyebrow{color:var(--muted);font-size:12px;letter-spacing:.12em;text-transform:uppercase}.title{font-size:27px;font-weight:800;margin-top:4px}.pill{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:var(--accent);font-size:12px}
+.card{background:rgba(23,35,45,.96);border:1px solid var(--line);border-radius:20px;padding:17px;margin:12px 0;box-shadow:0 10px 28px #0003}.dateLine{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}.dayTitle{font-size:22px;font-weight:750;margin:8px 0 14px}.leave{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#20362f;border:1px solid #315746;border-radius:16px;padding:15px}.leave small{display:block;color:#b7d5c4;margin-top:4px}.leave strong{font-size:30px;color:var(--accent);font-variant-numeric:tabular-nums}.sectionTitle{font-size:16px;font-weight:750;margin:20px 2px 10px}.lesson{display:flex;gap:14px;padding:14px 2px;border-bottom:1px solid var(--line)}.lesson:last-child{border:0}.time{min-width:104px;color:var(--blue);font-weight:700;font-variant-numeric:tabular-nums}.subject{font-weight:650;line-height:1.3}.detail{color:var(--muted);font-size:13px;margin-top:5px;white-space:pre-line}.empty{color:var(--muted);padding:18px 2px}.days{display:flex;gap:7px;overflow:auto;padding:5px 0 10px}.dayBtn{flex:1;min-width:48px;border:1px solid var(--line);background:#15212b;color:var(--muted);border-radius:13px;padding:10px 6px}.dayBtn b{display:block;font-size:14px;color:inherit}.dayBtn span{font-size:11px}.dayBtn.active{background:#244235;border-color:#4d896b;color:#dff8e9}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#1c2a35;color:var(--text);border-radius:12px;padding:11px 14px;font-weight:650}.btn.primary{background:var(--accent);color:#102019;border:0}.settings{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.field input,.edit input,.edit textarea{width:100%;background:#0f1921;border:1px solid var(--line);border-radius:10px;padding:11px;color:var(--text);font:inherit}.editRow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:9px 0}.edit textarea{min-height:65px;resize:vertical}.hidden{display:none!important}.note{font-size:12px;color:var(--muted);line-height:1.5}.modal{position:fixed;inset:0;background:#000a;display:flex;align-items:flex-end;justify-content:center;padding:12px;z-index:5}.sheet{width:100%;max-width:650px;max-height:88vh;overflow:auto;background:#17232d;border:1px solid var(--line);border-radius:22px;padding:18px}.sheetHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.editItem{border:1px solid var(--line);border-radius:14px;padding:12px;margin:10px 0}.editItem .actions{margin-top:8px}.danger{color:#ff9d9d}.footer{color:var(--muted);font-size:11px;text-align:center;padding:15px}
+@media(min-width:560px){.days{justify-content:space-between}.dayBtn{max-width:80px}}
+</style>
+</head>
+<body>
+<main>
+ <header class="top"><div><div class="eyebrow">Группа 223 · АМИ им. Воронина</div><div class="title">Моё расписание</div></div><div class="pill">● Учёба</div></header>
+ <section class="card">
+  <div class="dateLine"><span id="weekLabel">Учебная неделя</span><span id="todayDate"></span></div>
+  <div class="days" id="dayButtons"></div>
+  <div class="dayTitle" id="dayTitle"></div>
+  <div class="leave"><div><b>Когда выйти из дома</b><small id="leaveHint">Пешком · 10 минут + запас 5 минут</small></div><strong id="leaveTime">08:15</strong></div>
+ </section>
+ <div class="sectionTitle">Пары на этот день</div>
+ <section class="card" id="lessons"></section>
+ <section class="card">
+  <div class="sectionTitle" style="margin-top:0">Настройки дороги</div>
+  <div class="settings">
+   <div class="field"><label for="walk">Дорога пешком, минут</label><input id="walk" type="number" min="1" max="180" value="10"></div>
+   <div class="field"><label for="buffer">Запас, минут</label><input id="buffer" type="number" min="0" max="60" value="5"></div>
+   <div class="field"><label for="weekdayArrival">Приход пн–пт</label><input id="weekdayArrival" type="time" value="08:30"></div>
+   <div class="field"><label for="satArrival">Приход в субботу</label><input id="satArrival" type="time" value="09:00"></div>
+  </div>
+  <div class="actions" style="margin-top:12px"><button class="btn primary" id="saveSettings">Сохранить настройки</button><button class="btn" id="editSchedule">Изменить расписание</button></div>
+ </section>
+ <div class="footer">Изменения сохраняются на этом устройстве. Расписание можно редактировать вручную.</div>
+</main>
+<div class="modal hidden" id="editorModal"><div class="sheet">
+ <div class="sheetHead"><b>Редактор расписания</b><button class="btn" id="closeEditor">Закрыть</button></div>
+ <p class="note">Выбери день, добавляй, меняй или удаляй занятия. Изменения сохраняются на устройстве.</p>
+ <div class="field"><label for="editDay">День недели</label><select id="editDay" style="width:100%;background:#0f1921;color:white;border:1px solid var(--line);padding:11px;border-radius:10px"></select></div>
+ <div id="editList"></div>
+ <div class="editItem">
+  <b>Добавить пару</b>
+  <div class="editRow"><div class="field"><label>Начало</label><input id="newStart" type="time" value="09:00"></div><div class="field"><label>Конец</label><input id="newEnd" type="time" value="09:45"></div></div>
+  <div class="field"><label>Предмет</label><input id="newSubject" placeholder="Название предмета"></div>
+  <div class="field" style="margin-top:8px"><label>Кабинет / преподаватель (необязательно)</label><input id="newDetail" placeholder="Например: каб. 403"></div>
+  <button class="btn primary" id="addLesson" style="margin-top:10px">Добавить</button>
+ </div>
+ <div class="actions"><button class="btn" id="resetData">Сбросить к исходному расписанию</button></div>
+</div></div>
+<script>
+const original = {
+0:[{start:"09:00",end:"09:45",subject:"Техническая термодинамика, теплопередача и гидравлика",detail:"Крапивин Э.Н. · каб. 515"},{start:"10:45",end:"11:30",subject:"Метрология и стандартизация",detail:"Манахова С.В. · каб. 416"},{start:"13:05",end:"13:50",subject:"Теория и устройство судна",detail:"Корельский Ю.Б. · каб. 403"}],
+1:[{start:"08:30",end:"08:30",subject:"Классный час",detail:"Черепанова Ю.А. · каб. 509"},{start:"09:00",end:"09:45",subject:"Теория и устройство судна",detail:"Корельский Ю.Б. · каб. 403"},{start:"10:45",end:"11:30",subject:"Техническая термодинамика, теплопередача и гидравлика",detail:"Крапивин Э.Н. · каб. 515"},{start:"13:05",end:"13:50",subject:"Материаловедение",detail:"Манахова С.В. · каб. 416"},{start:"14:50",end:"15:35",subject:"Иностранный язык в профессиональной деятельности",detail:"Актуганова С.А. / Кривоногова О.В. · каб. 413 / 309"}],
+2:[{start:"09:00",end:"09:45",subject:"Физическая культура",detail:"Соболев С.В. · спортзал"},{start:"10:45",end:"11:30",subject:"Математика",detail:"Чистякова А.Г. · каб. 308"},{start:"13:05",end:"13:50",subject:"Техническая механика",detail:"Морозова И.В. · каб. 414"}],
+3:[{start:"09:00",end:"09:45",subject:"Техническая термодинамика, теплопередача и гидравлика",detail:"Крапивин Э.Н. · каб. 515"},{start:"10:45",end:"11:30",subject:"Материаловедение",detail:"Манахова С.В. · каб. 416"},{start:"13:05",end:"13:50",subject:"Математика",detail:"Чистякова А.Г. · каб. 308"}],
+4:[{start:"09:00",end:"09:45",subject:"Техническая термодинамика, теплопередача и гидравлика",detail:"Крапивин Э.Н. · каб. 515"},{start:"10:45",end:"11:30",subject:"Метрология и стандартизация",detail:"Манахова С.В. · каб. 416"},{start:"13:05",end:"13:50",subject:"Иностранный язык в профессиональной деятельности",detail:"Актуганова С.А. / Кривоногова О.В. · каб. 413 / 309"}],
+5:[{start:"09:00",end:"09:45",subject:"Теория и устройство судна",detail:"Корельский Ю.Б. · каб. 403"},{start:"10:45",end:"11:30",subject:"МДК.04.01 Выполнение работ по профессии",detail:"Толокнов А.И. · каб. 516"},{start:"13:05",end:"13:50",subject:"Техническая термодинамика, теплопередача и гидравлика",detail:"Крапивин Э.Н. · каб. 515"}],
+6:[]
+};
+const days=["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"], short=["ПН","ВТ","СР","ЧТ","ПТ","СБ","ВС"];
+let data=JSON.parse(localStorage.getItem("schedule223")||"null")||structuredClone(original);
+let settings=JSON.parse(localStorage.getItem("scheduleSettings")||"null")||{walk:10,buffer:5,weekdayArrival:"08:30",satArrival:"09:00"};
+let selected=0;
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem("schedule223",JSON.stringify(data))}
+function fmtDate(d){return d.toLocaleDateString("ru-RU",{day:"numeric",month:"long"})}
+function mins(t){let [h,m]=t.split(":").map(Number);return h*60+m}
+function time(m){return String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+function render(){
+ const now=new Date();$("todayDate").textContent=fmtDate(now);
+ const monday=new Date(now);monday.setDate(now.getDate()-((now.getDay()+6)%7));
+ $("weekLabel").textContent="Неделя · "+fmtDate(monday)+" — "+fmtDate(new Date(monday.getTime()+5*86400000));
+ $("dayButtons").innerHTML=days.map((d,i)=>{let dt=new Date(monday);dt.setDate(monday.getDate()+i);return `<button class="dayBtn ${i===selected?'active':''}" data-day="${i}"><b>${short[i]}</b><span>${dt.getDate()}</span></button>`}).join("");
+ document.querySelectorAll(".dayBtn").forEach(b=>b.onclick=()=>{selected=+b.dataset.day;render()});
+ $("dayTitle").textContent=days[selected];
+ let arrival=selected===5?settings.satArrival:settings.weekdayArrival;
+ let leave=mins(arrival)-settings.walk-settings.buffer;
+ $("leaveTime").textContent=time(leave);
+ $("leaveHint").textContent=`Приход к ${arrival} · пешком ${settings.walk} мин + запас ${settings.buffer} мин`;
+ let lessons=[...(data[selected]||[])].sort((a,b)=>mins(a.start)-mins(b.start));
+ $("lessons").innerHTML=lessons.length?lessons.map(l=>`<div class="lesson"><div class="time">${l.start}${l.end&&l.end!==l.start?`<br>– ${l.end}`:""}</div><div><div class="subject">${escapeHtml(l.subject)}</div>${l.detail?`<div class="detail">${escapeHtml(l.detail)}</div>`:""}</div></div>`).join(""):'<div class="empty">На этот день занятий нет 🎉</div>';
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function loadSettings(){ $("walk").value=settings.walk;$("buffer").value=settings.buffer;$("weekdayArrival").value=settings.weekdayArrival;$("satArrival").value=settings.satArrival}
+$("saveSettings").onclick=()=>{settings={walk:Math.max(1,+$("walk").value||10),buffer:Math.max(0,+$("buffer").value||0),weekdayArrival:$("weekdayArrival").value||"08:30",satArrival:$("satArrival").value||"09:00"};localStorage.setItem("scheduleSettings",JSON.stringify(settings));render()};
+$("editSchedule").onclick=()=>{$("editorModal").classList.remove("hidden");$("editDay").innerHTML=days.map((d,i)=>`<option value="${i}">${d}</option>`).join("");$("editDay").value=selected;renderEditor()};
+$("closeEditor").onclick=()=>$("editorModal").classList.add("hidden");
+$("editDay").onchange=()=>{selected=+$("editDay").value;render();renderEditor()};
+function renderEditor(){let d=+$("editDay").value;let arr=data[d]||[];$("editList").innerHTML=arr.length?arr.map((l,i)=>`<div class="editItem"><div class="editRow"><div class="field"><label>Начало</label><input type="time" data-i="${i}" data-k="start" value="${l.start}"></div><div class="field"><label>Конец</label><input type="time" data-i="${i}" data-k="end" value="${l.end||l.start}"></div></div><div class="field"><label>Предмет</label><input data-i="${i}" data-k="subject" value="${escapeHtml(l.subject)}"></div><div class="field" style="margin-top:8px"><label>Кабинет / преподаватель</label><input data-i="${i}" data-k="detail" value="${escapeHtml(l.detail||"")}"></div><div class="actions"><button class="btn danger" data-del="${i}">Удалить пару</button></div></div>`).join(""):'<div class="empty">Пока нет занятий.</div>';
+ $("editList").querySelectorAll("input[data-i]").forEach(inp=>inp.onchange=()=>{let i=+inp.dataset.i;data[d][i][inp.dataset.k]=inp.value;save();render()});
+ $("editList").querySelectorAll("[data-del]").forEach(btn=>btn.onclick=()=>{data[d].splice(+btn.dataset.del,1);save();render();renderEditor()});
+}
+$("addLesson").onclick=()=>{let d=+$("editDay").value,subject=$("newSubject").value.trim();if(!subject){alert("Введи название предмета.");return}data[d].push({start:$("newStart").value,end:$("newEnd").value,subject,detail:$("newDetail").value.trim()});data[d].sort((a,b)=>mins(a.start)-mins(b.start));save();$("newSubject").value="";$("newDetail").value="";render();renderEditor()};
+$("resetData").onclick=()=>{if(confirm("Вернуть исходное расписание из файла? Все твои изменения расписания будут потеряны.")){data=structuredClone(original);save();render();renderEditor()}};
+loadSettings();let today=(new Date().getDay()+6)%7;selected=today;render();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>
